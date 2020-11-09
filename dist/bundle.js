@@ -1,0 +1,1 @@
+console.log(123),console.error("输出a:",456);
