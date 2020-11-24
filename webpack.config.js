@@ -2,6 +2,7 @@ const path = require('path');
 const MiniCssExtraPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
 module.exports = {
     // 项目入口，webpack从此处开始构建
@@ -90,6 +91,7 @@ module.exports = {
         new MiniCssExtraPlugin({
             filename: '[name]-[local]-[hash:base64:5].css'
         }),
+        new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
             template: './public/index.html',
             minify: {
@@ -108,7 +110,7 @@ module.exports = {
         })
     ],
     devServer: {
-        contentBase: false,
+        contentBase: './dist/',
         clientLogLevel: 'warning',
         publicPath: './',
         hot: true,
