@@ -4,16 +4,54 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
+
+// 多页面配置
+// 复杂无需填写版
+// const glob = require('glob');
+// const srcDir = path.resolve(__dirname, './src/multipages'); // 多页面的入口配置
+// const distDir = path.resolve(__dirname, './dist');
+// const plugins = [];
+// const getEntry = () => {
+//     let files = glob.sync(srcDir + '/**/*.js'), entry = {}, entryFileName, outputHtmlName;
+//     for (let i = 0; i < files.length; i++) {
+//         let mactches
+//     }
+// }
+// 简单需要配置版本
+// const entryList = [{
+//     template: './pulic/index.html',
+//     filename: 'test-1.html',
+//     title: 'test-1',
+//     chunks: ['vendors', 'test-1'],
+// }, {
+//     template: './pulic/index.html',
+//     filename: 'test-2.html',
+//     title: 'test-2',
+//     chunks: ['vendors', 'test-2'],
+// }];
+// let plugins = entryList.map((item) => new HtmlWebpackPlugin(item));   // 多页面配置插件
+
+
+
 module.exports = {
     // 项目入口，webpack从此处开始构建
+    // entry: {
+    //     main: path.join(__dirname, 'src/index.js'), // 指定入口，可以指定多个。参考webpack文档
+    // },
+    // output: {
+    //     path: path.join(__dirname, "dist"), // bundle生成(emit)到哪里
+    //     filename: "js/[name]-[hash].js", // bundle生成文件的名称
+    //     // publicPath: '/',
+    //     chunkFilename: 'js/[name]-[hash].js'
+    // },
+    // 多页面配置
     entry: {
-        main: path.join(__dirname, 'src/index.js'), // 指定入口，可以指定多个。参考webpack文档
+        'test-1': path.join(__dirname, 'src/multipages/test-1/index.jsx'),
+        'test-2': path.join(__dirname, 'src/multipages/test-2/index.js'),
     },
     output: {
-        path: path.join(__dirname, "dist"), // bundle生成(emit)到哪里
-        filename: "js/[name]-[hash].js", // bundle生成文件的名称
-        publicPath: '/',
-        chunkFilename: 'js/[name]-[hash].js'
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'js/[name].[hash:5].js'
     },
     module: {
       rules: [{
@@ -93,16 +131,28 @@ module.exports = {
         }),
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
-            template: './public/index.html',
-            minify: {
-                removeComments: true,   // 清理html中的注释
-                collapseWhitespace: false,   // 空格折叠
-                removeAttributeQuotes: false,   // 移除双引号
-                // https://github.com/kangax/html-minifier#options-quick-reference
-            },
-            // inject: 'head',  // 打包的js
-            filename: 'index.html'
+            template: 'public/index.html',
+            filename: 'test-1.html',
+            title: 'test-1',
+            inject: 'body',
+            chunks: ['test-1', 'vendor'],
         }),
+        new HtmlWebpackPlugin({
+            template: 'public/index.html',
+            filename: 'test-2.html',
+            chunks: ['test-2', 'vendor'],
+        }),
+        // new HtmlWebpackPlugin({
+        //     template: 'public/index.html',
+        //     // minify: {
+        //     //     removeComments: true,   // 清理html中的注释
+        //     //     collapseWhitespace: false,   // 空格折叠
+        //     //     removeAttributeQuotes: false,   // 移除双引号
+        //     //     // https://github.com/kangax/html-minifier#options-quick-reference
+        //     // },
+        //     // inject: 'head',  // 打包的js
+        //     filename: 'index.html'
+        // }),
         new CopyWebpackPlugin({
             patterns: [
                 {from: path.resolve(__dirname, './src/assets/'), to: 'assets'}
@@ -111,8 +161,6 @@ module.exports = {
     ],
     devServer: {
         contentBase: './dist/',
-        clientLogLevel: 'warning',
-        publicPath: './',
         hot: true,
         progress: true,
         port: 3000,
