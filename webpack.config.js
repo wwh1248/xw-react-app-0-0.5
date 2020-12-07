@@ -3,6 +3,7 @@ const MiniCssExtraPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const WebpackDefinePlugin = require('webpack').DefinePlugin;
 
 
 // 多页面配置
@@ -35,23 +36,28 @@ const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
 module.exports = {
     // 项目入口，webpack从此处开始构建
-    // entry: {
-    //     main: path.join(__dirname, 'src/index.js'), // 指定入口，可以指定多个。参考webpack文档
-    // },
-    // output: {
-    //     path: path.join(__dirname, "dist"), // bundle生成(emit)到哪里
-    //     filename: "js/[name]-[hash].js", // bundle生成文件的名称
-    //     // publicPath: '/',
-    //     chunkFilename: 'js/[name]-[hash].js'
-    // },
-    // 多页面配置
     entry: {
-        'test-1': path.join(__dirname, 'src/multipages/test-1/index.jsx'),
-        'test-2': path.join(__dirname, 'src/multipages/test-2/index.js'),
+        main: path.join(__dirname, 'src/index.js'), // 指定入口，可以指定多个。参考webpack文档
     },
+    output: {
+        path: path.join(__dirname, "dist"), // bundle生成(emit)到哪里
+        filename: "js/[name]-[hash].js", // bundle生成文件的名称
+        // publicPath: '/',
+        chunkFilename: 'js/[name]-[hash].js'
+    },
+    // 多页面配置
+    // entry: {
+    //     'test-1': path.join(__dirname, 'src/multipages/test-1/index.jsx'),
+    //     'test-2': path.join(__dirname, 'src/multipages/test-2/index.js'),
+    // },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'js/[name].[hash:5].js'
+    },
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+        }
     },
     module: {
       rules: [{
@@ -70,22 +76,22 @@ module.exports = {
         }, {
             loader: "css-loader",
             options: {
-                minimize: true, // 是否压缩代码，默认true
+                // minimize: true, // 是否压缩代码，默认true
                 importLoaders: 2,   // 当前loader之后的数量，
-                localIdentName: '[name]-[local]-[hash:base64:5].css',
+                // localIdentName: '[name]-[local]-[hash:base64:5].css',
                 modules: true
             },
         }, {
             loader: "postcss-loader",
             options: {
-                plugins: (loader) => [
-                    require('autoprefixer')(),
-                ]
+                // plugins: (loader) => [
+                //     require('autoprefixer')(),
+                // ]
             }
         }, {
             loader: "less-loader",
             options: {
-                javascriptEnabled: true
+                // javascriptEnabled: true
             }
         }]
       }, {
@@ -130,36 +136,40 @@ module.exports = {
             filename: '[name]-[local]-[hash:base64:5].css'
         }),
         new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({
-            template: 'public/index.html',
-            filename: 'test-1.html',
-            title: 'test-1',
-            inject: 'body',
-            chunks: ['test-1', 'vendor'],
-        }),
-        new HtmlWebpackPlugin({
-            template: 'public/index.html',
-            filename: 'test-2.html',
-            chunks: ['test-2', 'vendor'],
-        }),
         // new HtmlWebpackPlugin({
         //     template: 'public/index.html',
-        //     // minify: {
-        //     //     removeComments: true,   // 清理html中的注释
-        //     //     collapseWhitespace: false,   // 空格折叠
-        //     //     removeAttributeQuotes: false,   // 移除双引号
-        //     //     // https://github.com/kangax/html-minifier#options-quick-reference
-        //     // },
-        //     // inject: 'head',  // 打包的js
-        //     filename: 'index.html'
+        //     filename: 'test-1.html',
+        //     title: 'test-1',
+        //     inject: 'body',
+        //     chunks: ['test-1', 'vendor'],
         // }),
+        // new HtmlWebpackPlugin({
+        //     template: 'public/index.html',
+        //     filename: 'test-2.html',
+        //     chunks: ['test-2', 'vendor'],
+        // }),
+        new HtmlWebpackPlugin({
+            template: 'public/index.html',
+            // minify: {
+            //     removeComments: true,   // 清理html中的注释
+            //     collapseWhitespace: false,   // 空格折叠
+            //     removeAttributeQuotes: false,   // 移除双引号
+            //     // https://github.com/kangax/html-minifier#options-quick-reference
+            // },
+            // inject: 'head',  // 打包的js
+            filename: 'index.html'
+        }),
         new CopyWebpackPlugin({
             patterns: [
                 {from: path.resolve(__dirname, './src/assets/'), to: 'assets'}
             ]
+        }),
+        new WebpackDefinePlugin({
+            BASE_NAME: '"/xw"'
         })
     ],
     devServer: {
+        historyApiFallback: true,   // 配置单页路由必须配置这个history
         contentBase: './dist/',
         hot: true,
         progress: true,
